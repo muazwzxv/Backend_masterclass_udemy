@@ -21,5 +21,7 @@ database.reset:
 test:
 	go test -v -cover ./... 
 	
+run:
+	go run ./cmd
 
 .PHONY: database.create database.drop migrations.up migrations.down gen database.reset

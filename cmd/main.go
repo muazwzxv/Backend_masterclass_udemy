@@ -20,6 +20,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+  if err = database.Ping(); err != nil {
+		log.Fatal(err)
+  }
 	store := db.NewStore(database)
 
 	server := api.NewServer(store)
