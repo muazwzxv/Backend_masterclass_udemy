@@ -11,10 +11,18 @@ type Server struct {
 }
 
 func NewServer(store *db.Store) *Server {
+  mux := gin.Default()
   server := &Server{
     store: store,
-    mux: gin.Default(),
+    mux: mux,
   }
-
   return server
+}
+
+func (s *Server) Start(address string) error {
+  return s.mux.Run(address)
+}
+
+func (s *Server) SetupRoutes() {
+  s.mux.POST("/accounts", s.createAccount)
 }
