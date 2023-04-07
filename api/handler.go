@@ -10,7 +10,8 @@ import (
 func (s *Server) createAccount(ctx *gin.Context) {
 	var req CreateAccount
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+    s.log.Info(err.Error())
+		ctx.JSON(http.StatusBadRequest, errorResponse(BadRequest))
 		return
 	}
 
