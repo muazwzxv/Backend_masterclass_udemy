@@ -36,6 +36,7 @@ func (s *Server) SetupRoutes() {
 		v1 := api.Group("/v1")
 		{
 			v1.POST("/accounts", s.createAccount)
+      v1.GET("/accounts/:id", s.getAccount)
 		}
 	}
 }
