@@ -1,4 +1,4 @@
-package api
+package accounts
 
 import db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
 
