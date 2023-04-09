@@ -6,22 +6,20 @@ import (
 )
 
 type Gateway struct {
-  accounts *accounts.Handler 
+	accounts *accounts.Handler
 }
 
 func New(
-  accounts *accounts.Handler,
+	accounts *accounts.Handler,
 ) *Gateway {
-  return &Gateway{
-    accounts: accounts,
-  }
+	return &Gateway{
+		accounts: accounts,
+	}
 }
- 
+
 func (g *Gateway) Init(mux *gin.Engine) {
-  api := mux.Group("/api")
+	api := mux.Group("/api")
 
-  // setup routes
-  g.accounts.Routes(api)
+	// setup routes
+	g.accounts.Routes(api)
 }
-
-

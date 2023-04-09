@@ -8,8 +8,9 @@ import (
 )
 
 type IAccounts interface {
-	CreateAccount(ctx context.Context, data *CreateAccount) (*db.Account, error)
-	FindAccount(ctx context.Context, id int64) (*db.Account, error)
+	CreateAccount(ctx context.Context, data *CreateAccount) (*Account, error)
+	FindAccount(ctx context.Context, id int64) (*Account, error)
+  ListAccounts(ctx context.Context, query *GetAccounts) ([]*Account, error)
 }
 
 type Module struct {
@@ -20,7 +21,7 @@ type Module struct {
 func New(
   db *db.Store, 
   log *zap.SugaredLogger,
-) *Module {
+) IAccounts {
 	return &Module{
 		db: db,
 	}

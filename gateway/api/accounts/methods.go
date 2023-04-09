@@ -2,7 +2,6 @@ package accounts
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/muazwzxv/go-backend-masterclass/gateway/utils"
@@ -22,30 +21,47 @@ func (h *Handler) CreateAccount(ctx *gin.Context) {
 		Balance:  0,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, utils.ToResponseBody(convertToAccountResponse(acc)))
+	ctx.JSON(http.StatusCreated, utils.ToResponseBody(acc))
 }
 
 func (h *Handler) GetAccount(ctx *gin.Context) {
-	pathID := ctx.Param("id")
-	if pathID == "" {
+	var req GetAccountrequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
 		return
 	}
 
-	id, err := strconv.ParseInt(pathID, 10, 64)
+	acc, err := h.m.FindAccount(ctx, req.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
+		if err == accountsModule.NotFound {
+			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
+			return
+		}
+    ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-  acc, err := h.m.FindAccount(ctx, id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, nil)
-	}
+	ctx.JSON(http.StatusOK, utils.ToResponseBody(acc))
+}
 
-	ctx.JSON(http.StatusOK, utils.ToResponseBody(convertToAccountResponse(acc)))
+func (h *Handler) ListAccounts(ctx *gin.Context) {
+  var req GetAccountsRequest
+  if err := ctx.ShouldBindQuery(&req); err != nil {
+    ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
+    return
+  }
+  
+  accs, err := h.m.ListAccounts(ctx, &accountsModule.GetAccounts{
+    Limit: req.PageSize,
+    Offset: (req.PageID - 1) * req.PageSize,
+  })
+  if err != nil {
+    ctx.AbortWithStatus(http.StatusInternalServerError)
+  }
+
+  ctx.JSON(http.StatusOK, utils.ToResponseBody(accs))
 }

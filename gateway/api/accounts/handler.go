@@ -6,11 +6,11 @@ import (
 )
 
 type Handler struct {
-	m   *accounts.Module
+	m   accounts.IAccounts
 }
 
 func New(
-	module *accounts.Module,
+	module accounts.IAccounts,
 ) *Handler {
 	return &Handler{
 		m:   module,
@@ -22,5 +22,6 @@ func (h *Handler) Routes(route *gin.RouterGroup) {
 	{
 		v1.POST("/accounts", h.CreateAccount)
 		v1.GET("/accounts/:id", h.GetAccount)
+		v1.GET("/accounts", h.ListAccounts)
 	}
 }
