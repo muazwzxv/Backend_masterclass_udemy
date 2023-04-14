@@ -24,6 +24,7 @@ func New(
 ) IAccounts {
 	return &Module{
 		db: db,
+    log: log,
 	}
 }
 

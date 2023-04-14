@@ -11,7 +11,7 @@ import (
 func (h *Handler) CreateAccount(ctx *gin.Context) {
 	var req CreateAccount
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-    h.log.Errorf("h.CreateAccount: %v", err)
+		h.log.Errorf("h.CreateAccount: %v", err)
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
 		return
 	}
@@ -38,11 +38,12 @@ func (h *Handler) GetAccount(ctx *gin.Context) {
 
 	acc, err := h.m.FindAccount(ctx, req.ID)
 	if err != nil {
+		h.log.Errorf("h.GetAccount: %v", err)
 		if err == accountsModule.NotFound {
 			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
 			return
 		}
-    ctx.AbortWithStatus(http.StatusInternalServerError)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -50,20 +51,20 @@ func (h *Handler) GetAccount(ctx *gin.Context) {
 }
 
 func (h *Handler) ListAccounts(ctx *gin.Context) {
-  var req GetAccountsRequest
-  if err := ctx.ShouldBindQuery(&req); err != nil {
-    h.log.Errorf("h.ListAccounts", err)
-    ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
-    return
-  }
-  
-  accs, err := h.m.ListAccounts(ctx, &accountsModule.GetAccounts{
-    Limit: req.PageSize,
-    Offset: (req.PageID - 1) * req.PageSize,
-  })
-  if err != nil {
-    ctx.AbortWithStatus(http.StatusInternalServerError)
-  }
+	var req GetAccountsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		h.log.Errorf("h.ListAccounts", err)
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
+		return
+	}
 
-  ctx.JSON(http.StatusOK, utils.ToResponseBody(accs))
+	accs, err := h.m.ListAccounts(ctx, &accountsModule.GetAccounts{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	})
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+
+	ctx.JSON(http.StatusOK, utils.ToResponseBody(accs))
 }
