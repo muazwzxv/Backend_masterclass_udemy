@@ -10,17 +10,19 @@ import (
 	accountsHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/accounts"
 	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
 	"github.com/muazwzxv/go-backend-masterclass/pkg"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
 	"go.uber.org/zap"
 )
 
-const (
-	dbDriver      = "pgx"
-	dbSource      = "postgresql://root:password@localhost:5432/go_masterclass?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
-)
-
 func main() {
-	database, err := sql.Open(dbDriver, dbSource)
+  // Load config
+  cfg, err := config.LoadConfig("./")
+  if err != nil {
+    log.Fatal("failed to load configs", err)
+  }
+
+  // connect to database
+	database, err := sql.Open(cfg.DBDriver, cfg.DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,6 +30,8 @@ func main() {
 		log.Fatal(err)
 	}
 	store := db.NewStore(database)
+
+  // setup logger
 	log, _ := zap.NewDevelopment()
 	sugaredLogger := log.Sugar()
 
@@ -39,7 +43,7 @@ func main() {
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
 
-	if err = server.Start(serverAddress); err != nil {
+	if err = server.Start(cfg.ServerAddress); err != nil {
 		sugaredLogger.Fatal("cannot start server: ", err)
 	}
 }

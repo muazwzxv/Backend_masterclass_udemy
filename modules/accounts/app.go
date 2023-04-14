@@ -27,5 +27,5 @@ func New(
 	}
 }
 
-// verify implementor
+// verify accounts.Module implements IAccounts
 var _ IAccounts = (*Module)(nil)
