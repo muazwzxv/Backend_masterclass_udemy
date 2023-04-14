@@ -16,7 +16,7 @@ func NewServer(
 	store *db.Store,
 	log *zap.SugaredLogger,
 ) *Server {
-	mux := gin.New()
+	mux := gin.Default()
 
 	server := &Server{
 		Store: store,

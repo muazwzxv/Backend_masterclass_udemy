@@ -48,6 +48,6 @@ func (h *Handler) GetUser(ctx *gin.Context) {
     return
   }
 
-  ctx.JSON(http.StatusOK, utils.ToResponseBody(user))
+  ctx.JSON(http.StatusOK, utils.ToResponseBody(convertToResponseUser(user)))
 }
 
