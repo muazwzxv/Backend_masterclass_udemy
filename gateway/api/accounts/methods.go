@@ -11,6 +11,7 @@ import (
 func (h *Handler) CreateAccount(ctx *gin.Context) {
 	var req CreateAccount
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+    h.log.Errorf("h.CreateAccount: %v", err)
 		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
 		return
 	}
@@ -51,6 +52,7 @@ func (h *Handler) GetAccount(ctx *gin.Context) {
 func (h *Handler) ListAccounts(ctx *gin.Context) {
   var req GetAccountsRequest
   if err := ctx.ShouldBindQuery(&req); err != nil {
+    h.log.Errorf("h.ListAccounts", err)
     ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
     return
   }

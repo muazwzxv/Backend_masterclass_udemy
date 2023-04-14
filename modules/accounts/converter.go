@@ -14,7 +14,7 @@ func convertToModuleAccount(acc db.Account) *Account {
 }
 
 func convertToModuleAccountList(accs []db.Account) []*Account {
-	accounts := make([]*Account, len(accs))
+	accounts := make([]*Account, 0)
 	for _, acc := range accs {
 		account := &Account{
 			ID:        acc.ID,

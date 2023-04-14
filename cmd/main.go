@@ -33,8 +33,8 @@ func main() {
 
 	/**
 	  LOGGER should be in handler layer or module layer?
+    RN IM PUTTING IT IN BOTH
 	*/
-
 	server := pkg.NewServer(store, sugaredLogger)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
@@ -46,7 +46,7 @@ func main() {
 
 func InitializeModules(server *pkg.Server) *APIGateway.Gateway {
 	accounts := accountsModule.New(server.Store, server.Log)
-	accHandler := accountsHandler.New(accounts)
+	accHandler := accountsHandler.New(accounts, server.Log)
 
 	return APIGateway.New(
 		accHandler,

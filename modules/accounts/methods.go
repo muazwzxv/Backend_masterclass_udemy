@@ -15,7 +15,7 @@ func (m *Module) CreateAccount(ctx context.Context, data *CreateAccount) (*Accou
 		Currency: data.Currency,
 	})
 	if err != nil {
-		m.log.Info(err, "m.db.CreateAccount")
+    m.log.Errorf("m.db.CreateAccount: %v", err)
 		return nil, errors.Wrapf(err, "m.CreateAccount")
 	}
 
@@ -25,11 +25,11 @@ func (m *Module) CreateAccount(ctx context.Context, data *CreateAccount) (*Accou
 func (m *Module) FindAccount(ctx context.Context, id int64) (*Account, error) {
 	acc, err := m.db.GetAccount(ctx, id)
 	if err != nil {
-		m.log.Info(err, "m.db.GetAccount")
+    m.log.Errorf("m.db.GetAccount: %v", err)
 		if err == sql.ErrNoRows {
 			return nil, NotFound
 		}
-		return nil, err
+		return nil, errors.Wrapf(err, "m.FindAccount")
 	}
 	return convertToModuleAccount(acc), nil
 }
@@ -40,7 +40,7 @@ func (m *Module) ListAccounts(ctx context.Context, query *GetAccounts) ([]*Accou
 		Offset: query.Offset,
 	})
   if err != nil {
-    m.log.Info(err, "m.db.ListAccounts")
+    m.log.Errorf("m.db.ListAccounts: %v", err)
     return nil, errors.Wrapf(err, "m.GetAccounts")
   }
 
