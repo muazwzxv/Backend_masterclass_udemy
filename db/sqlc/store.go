@@ -7,6 +7,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+type IStore interface {
+  Querier
+	TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResult, error)
+}
+
+var _ IStore = (*Store)(nil)
+
 // provides function to execute db queries and transactions
 type Store struct {
 	*Queries
@@ -26,8 +33,8 @@ func (s *Store) execTX(ctx context.Context, fn func(*Queries) error) error {
 	if err != nil {
 		return errors.Wrap(err, "s.execTX")
 	}
+  queries := New(tx)
 
-	queries := New(tx)
 
 	err = fn(queries)
 	if err != nil {

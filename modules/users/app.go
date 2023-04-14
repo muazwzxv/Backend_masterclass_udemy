@@ -13,12 +13,12 @@ type IUsers interface{
 }
 
 type Module struct {
-	db  *db.Store
+	db  db.IStore
 	log *zap.SugaredLogger
 }
 
 func New(
-  db *db.Store,
+  db db.IStore,
   log *zap.SugaredLogger,
 ) IUsers {
   return &Module{

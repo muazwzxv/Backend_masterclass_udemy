@@ -7,13 +7,13 @@ import (
 )
 
 type Server struct {
-	Store *db.Store
+	Store db.IStore
 	Mux   *gin.Engine
 	Log   *zap.SugaredLogger
 }
 
 func NewServer(
-	store *db.Store,
+	store db.IStore,
 	log *zap.SugaredLogger,
 ) *Server {
 	mux := gin.Default()

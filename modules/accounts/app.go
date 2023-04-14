@@ -14,12 +14,12 @@ type IAccounts interface {
 }
 
 type Module struct {
-	db  *db.Store
+	db  db.IStore
 	log *zap.SugaredLogger // should this be here or handler layer? (i feel like handler and not here)
 }
 
 func New(
-  db *db.Store, 
+  db db.IStore, 
   log *zap.SugaredLogger,
 ) IAccounts {
 	return &Module{
