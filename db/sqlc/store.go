@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 
+	_ "github.com/golang/mock/mockgen/model"
+
 	"github.com/pkg/errors"
 )
 
 type IStore interface {
-  Querier
+	Querier
 	TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResult, error)
 }
 
@@ -33,8 +35,7 @@ func (s *Store) execTX(ctx context.Context, fn func(*Queries) error) error {
 	if err != nil {
 		return errors.Wrap(err, "s.execTX")
 	}
-  queries := New(tx)
-
+	queries := New(tx)
 
 	err = fn(queries)
 	if err != nil {
@@ -69,11 +70,13 @@ func (s *Store) TransferTx(ctx context.Context, args TransferTxParams) (Transfer
 	err := s.execTX(ctx, func(q *Queries) error {
 		var err error
 
-		res.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
+		arg := &CreateTransferParams{
 			FromAccountID: args.FromAccountID,
 			ToAccountID:   args.ToAccountID,
 			Amount:        args.Amount,
-		})
+		}
+
+		res.Transfer, err = q.CreateTransfer(ctx, *arg)
 		if err != nil {
 			return errors.Wrap(err, "s.transferTx.CreateTransfer")
 		}
