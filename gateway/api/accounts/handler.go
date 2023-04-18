@@ -8,16 +8,16 @@ import (
 
 type Handler struct {
 	m   accounts.IAccounts
-  log *zap.SugaredLogger
+	log *zap.SugaredLogger
 }
 
 func New(
 	module accounts.IAccounts,
-  log *zap.SugaredLogger,
+	log *zap.SugaredLogger,
 ) *Handler {
 	return &Handler{
 		m:   module,
-    log: log,
+		log: log,
 	}
 }
 
