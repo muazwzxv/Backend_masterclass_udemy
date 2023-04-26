@@ -24,4 +24,7 @@ test:
 run:
 	go run ./cmd
 
-.PHONY: database.create database.drop migrations.up migrations.down gen database.reset
+mock:
+	mockgen -package mockdb -destination ./db/mock/store.go  github.com/muazwzxv/go-backend-masterclass/db/sqlc IStore
+
+.PHONY: database.create database.drop migrations.up migrations.down gen database.reset test run mock
