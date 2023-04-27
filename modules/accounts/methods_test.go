@@ -26,10 +26,10 @@ func TestGetAccount(t *testing.T) {
 	module := createModule(store)
 
 	testCases := []struct {
-		Name          string
-		AccountID     int64
-		ExpectedErr   error
-		buildStubs    func(store *mockdb.MockIStore)
+		Name        string
+		AccountID   int64
+		ExpectedErr error
+		buildStubs  func(store *mockdb.MockIStore)
 	}{
 		{
 			Name:        "Account found",
@@ -53,13 +53,24 @@ func TestGetAccount(t *testing.T) {
 					Return(db.Account{}, sql.ErrNoRows)
 			},
 		},
+		{
+			Name:        "Internal server error",
+			AccountID:   20,
+			ExpectedErr: sql.ErrConnDone,
+			buildStubs: func(store *mockdb.MockIStore) {
+				store.EXPECT().
+					GetAccount(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Account{}, sql.ErrConnDone)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-      tc.buildStubs(store)
+			tc.buildStubs(store)
 			_, err := module.FindAccount(context.Background(), tc.AccountID)
-			assert.ErrorIs(t, tc.ExpectedErr, err)
+			assert.ErrorIs(t, err, tc.ExpectedErr)
 		})
 	}
 }
