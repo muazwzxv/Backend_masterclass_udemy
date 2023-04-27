@@ -25,46 +25,46 @@ func TestGetAccount(t *testing.T) {
 	// create module
 	module := createModule(store)
 
-  // setup mock
-  store.EXPECT().
-    GetAccount(gomock.Any(), gomock.Any()).
-    DoAndReturn(func(ctx context.Context, ID int64) (db.Account, error) {
-      if ID == testAcc.ID {
-        return testAcc, nil
-      } 
-      return db.Account{}, sql.ErrNoRows
-    }).
-  AnyTimes()
-
-	type testCase struct {
-		Name        string
-		AccountID   int64
-		ExpectedErr error
-	}
-
-	testCases := []testCase{
+	testCases := []struct {
+		Name          string
+		AccountID     int64
+		ExpectedErr   error
+		buildStubs    func(store *mockdb.MockIStore)
+	}{
 		{
 			Name:        "Account found",
 			AccountID:   testAcc.ID,
 			ExpectedErr: nil,
+			buildStubs: func(store *mockdb.MockIStore) {
+				store.EXPECT().
+					GetAccount(gomock.Any(), gomock.Eq(testAcc.ID)).
+					Times(1).
+					Return(testAcc, nil)
+			},
 		},
 		{
 			Name:        "Account Not found",
 			AccountID:   20,
 			ExpectedErr: accounts.NotFound,
+			buildStubs: func(store *mockdb.MockIStore) {
+				store.EXPECT().
+					GetAccount(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Account{}, sql.ErrNoRows)
+			},
 		},
 	}
 
-	for _, test := range testCases {
-		t.Run(test.Name, func(t *testing.T) {
-			_, err := module.FindAccount(context.Background(), test.AccountID)
-			assert.ErrorIs(t, test.ExpectedErr, err)
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+      tc.buildStubs(store)
+			_, err := module.FindAccount(context.Background(), tc.AccountID)
+			assert.ErrorIs(t, tc.ExpectedErr, err)
 		})
 	}
 }
 
 // Helpers
-
 func createModule(db db.IStore) accounts.IAccounts {
 	log, _ := zap.NewDevelopment()
 	sugaredLogger := log.Sugar()
