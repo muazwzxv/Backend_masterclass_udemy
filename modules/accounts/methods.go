@@ -46,3 +46,21 @@ func (m *Module) ListAccounts(ctx context.Context, query *GetAccounts) ([]*Accou
 
   return convertToModuleAccountList(accs), nil
 }
+
+func (m *Module) ValidateAccount(ctx context.Context, accountID int64, currency string) (*bool, error) {
+  isValid := false
+  acc, err := m.db.GetAccount(ctx, accountID)
+  if err != nil {
+    if err == sql.ErrNoRows {
+      return nil, NotFound
+    }
+    return nil, errors.Wrapf(err, "m.ValidateAccount")
+  }
+
+  if string(acc.Currency) != currency {
+    return nil, errors.Errorf("account [%d] currency mismatch: %s and %s", accountID, string(acc.Currency), currency)
+
+  }
+
+  return &isValid, nil
+}

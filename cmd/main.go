@@ -10,7 +10,9 @@ import (
 	accountsHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/accounts"
 	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
 	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
+  transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
 	usersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/users"
+  transfersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/transfers"
 	"github.com/muazwzxv/go-backend-masterclass/pkg"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
 	"go.uber.org/zap"
@@ -45,7 +47,6 @@ func main() {
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
   if err = server.Start(cfg.ServerAddress); err != nil {
-
 		sugaredLogger.Fatal("cannot start server: ", err)
 	}
 }
@@ -57,8 +58,12 @@ func InitializeModules(server *pkg.Server) *APIGateway.Gateway {
   users := usersModule.New(server.Store, server.Log)
   usersHandler := usersHandler.New(users, server.Log)
 
+  transfers := transfersModule.New(server.Store, server.Log, accounts)
+  transfersHandler := transfersHandler.New(transfers, server.Log)
+
 	return APIGateway.New(
 		accHandler,
     usersHandler,
+    transfersHandler,
 	)
 }

@@ -24,7 +24,6 @@ func New(
 func (h *Handler) Routes(route *gin.RouterGroup) {
 	v1 := route.Group("/v1")
 	{
-		v1.GET("/transfer", func(ctx *gin.Context) {
-		})
+    v1.POST("/transfers", h.CreateTransfer)
 	}
 }

@@ -20,7 +20,7 @@ type Module struct {
 func New(
   db db.IStore,
   log *zap.SugaredLogger,
-) IUsers {
+) *Module {
   return &Module{
     db: db,
     log: log,
