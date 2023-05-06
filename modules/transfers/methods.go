@@ -8,29 +8,28 @@ import (
 )
 
 func (m *Module) TransferTransaction(ctx context.Context, req *TransferRequest) (*db.TransferTxResult, error) {
+	// validate accounts and currency
+	isFromAccountValid, err := m.accountsAdapter.ValidateAccount(ctx, req.FromAccountID, req.Currency)
+	if err != nil {
+		m.log.Errorf("m.accounts.ValidateAccount: %+v", err)
+		return nil, errors.Wrap(err, "m.TransferTransaction")
+	}
 
-  // validate accounts and currency 
-  isFromAccountValid, err := m.accounts.ValidateAccount(ctx, req.FromAccountID, req.Currency)
-  if err != nil {
+  if !isFromAccountValid {
+    return nil, errors.New("from account not valid")
+  }
+
+	isToAccountValid, err := m.accountsAdapter.ValidateAccount(ctx, req.ToAccountID, req.Currency)
+	if err != nil {
 		m.log.Errorf("m.accounts.ValidateAccount: %v", err)
-		return nil, errors.Wrapf(err, "m.TransferTransaction")
+		return nil, errors.Wrap(err, "m.TransferTransaction")
+	}
+
+  if !isToAccountValid {
+    return nil, errors.New("to account not valid")
   }
 
-  if !*isFromAccountValid {
-    return nil, errors.Wrapf(err, "m.TransferTransaction")
-  }
-
-  isToAccountValid, err := m.accounts.ValidateAccount(ctx, req.ToAccountID, req.Currency)
-  if err != nil {
-		m.log.Errorf("m.accounts.ValidateAccount: %v", err)
-		return nil, errors.Wrapf(err, "m.TransferTransaction")
-  }
-
-  if !*isToAccountValid {
-    return nil, errors.Wrapf(err, "m.TransferTransaction")
-  }
-
-  // Initiate transfer
+	// Initiate transfer
 	result, err := m.db.TransferTx(ctx, db.TransferTxParams{
 		FromAccountID: req.FromAccountID,
 		ToAccountID:   req.ToAccountID,
@@ -44,8 +43,4 @@ func (m *Module) TransferTransaction(ctx context.Context, req *TransferRequest) 
 	// TransferTxResult is a pretty complicated struct,
 	// Will not do a module layer for the type for now
 	return &result, nil
-}
-
-func (m *Module) ValidateAccount(ctx context.Context, accountID int64, currency string) (*bool, error) {
-  return m.accounts.ValidateAccount(ctx, accountID, currency)
 }

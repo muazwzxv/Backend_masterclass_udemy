@@ -8,24 +8,25 @@ import (
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
 	APIGateway "github.com/muazwzxv/go-backend-masterclass/gateway/api"
 	accountsHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/accounts"
-	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
-	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
-  transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
+	transfersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/transfers"
 	usersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/users"
-  transfersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/transfers"
+	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
+	transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
+	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
+	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
 	"github.com/muazwzxv/go-backend-masterclass/pkg"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
 	"go.uber.org/zap"
 )
 
 func main() {
-  // Load config
-  cfg, err := config.LoadConfig("./")
-  if err != nil {
-    log.Fatal("failed to load configs", err)
-  }
+	// Load config
+	cfg, err := config.LoadConfig("./")
+	if err != nil {
+		log.Fatal("failed to load configs", err)
+	}
 
-  // connect to database
+	// connect to database
 	database, err := sql.Open(cfg.DBDriver, cfg.DBSource)
 	if err != nil {
 		log.Fatal(err)
@@ -35,18 +36,18 @@ func main() {
 	}
 	store := db.NewStore(database)
 
-  // setup logger
+	// setup logger
 	log, _ := zap.NewDevelopment()
 	sugaredLogger := log.Sugar()
 
 	/**
-	  LOGGER should be in handler layer or module layer?
-    RN IM PUTTING IT IN BOTH
+		  LOGGER should be in handler layer or module layer?
+	    RN IM PUTTING IT IN BOTH
 	*/
 	server := pkg.NewServer(store, sugaredLogger)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
-  if err = server.Start(cfg.ServerAddress); err != nil {
+	if err = server.Start(cfg.ServerAddress); err != nil {
 		sugaredLogger.Fatal("cannot start server: ", err)
 	}
 }
@@ -55,15 +56,19 @@ func InitializeModules(server *pkg.Server) *APIGateway.Gateway {
 	accounts := accountsModule.New(server.Store, server.Log)
 	accHandler := accountsHandler.New(accounts, server.Log)
 
-  users := usersModule.New(server.Store, server.Log)
-  usersHandler := usersHandler.New(users, server.Log)
+	users := usersModule.New(server.Store, server.Log)
+	usersHandler := usersHandler.New(users, server.Log)
 
-  transfers := transfersModule.New(server.Store, server.Log, accounts)
-  transfersHandler := transfersHandler.New(transfers, server.Log)
+	transfers := transfersModule.New(
+		server.Store,
+		server.Log,
+		adapter.NewAccountsAdapter(accounts),
+	)
+	transfersHandler := transfersHandler.New(transfers, server.Log)
 
 	return APIGateway.New(
 		accHandler,
-    usersHandler,
-    transfersHandler,
+		usersHandler,
+		transfersHandler,
 	)
 }

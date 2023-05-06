@@ -5,38 +5,36 @@ import (
 
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
 	"github.com/muazwzxv/go-backend-masterclass/modules/accounts"
+	accountsAdapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
+	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
 	"go.uber.org/zap"
 )
 
 type ITransfers interface {
-	IAccounts
 	TransferTransaction(ctx context.Context, req *TransferRequest) (*db.TransferTxResult, error)
-}
-
-type IAccounts interface {
-	ValidateAccount(ctx context.Context, accountID int64, currency string) (*bool, error)
 }
 
 type Module struct {
 	db       db.IStore
 	log      *zap.SugaredLogger
-	accounts IAccounts
+	accountsAdapter accountsAdapter.IAccounts
 }
 
 func New(
 	db db.IStore,
 	log *zap.SugaredLogger,
-	accountsModule IAccounts,
+	accountsAdapter accountsAdapter.IAccounts,
 ) *Module {
 	return &Module{
 		db:       db,
 		log:      log,
-		accounts: accountsModule,
+		accountsAdapter: accountsAdapter,
 	}
 }
 
 // verify transfers.Module implements ITransfers
 var (
 	_ ITransfers = (*Module)(nil)
-	_ IAccounts  = (*accounts.Module)(nil)
+  _ adapter.IAccounts = (*adapter.AccountsAdapter)(nil)
+  _ adapter.IAccounts = (*accounts.Module)(nil)
 )
