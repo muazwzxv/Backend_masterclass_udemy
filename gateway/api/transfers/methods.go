@@ -23,8 +23,7 @@ func (h *Handler) CreateTransfer(ctx *gin.Context) {
 		Currency:      req.Currency,
 	})
   if err != nil {
-    h.log.Info("i made it in internal server error")
-    ctx.AbortWithStatus(http.StatusInternalServerError)
+    ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(err))
     return
   }
 
