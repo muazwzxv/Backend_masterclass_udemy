@@ -10,6 +10,9 @@
   - Example shows a situation where we want to update the balance of 2 accounts in one atomic transaction
 - Setup a Go server
   - Currently the file structure in the repo are my own designs. (This part I'm not following the course, a good time to practice scaffolding a Go backend repo)
+- Generating mock and writing tests
+- Doing CRUD on some of the API
+
 
 ## Prerequisite 
 
@@ -34,5 +37,9 @@ make database.create
 make migrations.up
 ```
 
+### Creating new migrations file
+```
+migrate create -ext sql -dir /db/migrations -seq $(MIGRATIONS_NAME)
+```
 
 
