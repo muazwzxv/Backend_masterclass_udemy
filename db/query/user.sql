@@ -15,9 +15,11 @@ OFFSET $2;
 INSERT INTO users (
   first_name,
   last_name,
+  user_name,
+  hashed_password,
   email
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 ) RETURNING *;
 
 -- name: UpdateUser :exec

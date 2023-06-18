@@ -9,7 +9,7 @@ CREATE TABLE "user" (
   "id" bigserial PRIMARY KEY,
   "first_name" varchar,
   "last_name" varchar,
-  "email" varchat UNIQUE NOT NULL,
+  "email" varchar UNIQUE NOT NULL,
   "created_at" timestampz DEFAULT (now()),
   "deleted_at" timestampz
 );

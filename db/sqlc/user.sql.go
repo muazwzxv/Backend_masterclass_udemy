@@ -14,20 +14,30 @@ const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   first_name,
   last_name,
+  user_name,
+  hashed_password,
   email
 ) VALUES (
-  $1, $2, $3
-) RETURNING id, first_name, last_name, email, created_at, deleted_at
+  $1, $2, $3, $4, $5
+) RETURNING id, first_name, last_name, email, created_at, deleted_at, user_name, hashed_password, password_changed_at
 `
 
 type CreateUserParams struct {
-	FirstName sql.NullString `json:"first_name"`
-	LastName  sql.NullString `json:"last_name"`
-	Email     string         `json:"email"`
+	FirstName      sql.NullString `json:"first_name"`
+	LastName       sql.NullString `json:"last_name"`
+	UserName       string         `json:"user_name"`
+	HashedPassword string         `json:"hashed_password"`
+	Email          string         `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.FirstName, arg.LastName, arg.Email)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.FirstName,
+		arg.LastName,
+		arg.UserName,
+		arg.HashedPassword,
+		arg.Email,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -36,6 +46,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.CreatedAt,
 		&i.DeletedAt,
+		&i.UserName,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
 	)
 	return i, err
 }
@@ -50,7 +63,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUsers = `-- name: GetUsers :one
-SELECT id, first_name, last_name, email, created_at, deleted_at FROM users
+SELECT id, first_name, last_name, email, created_at, deleted_at, user_name, hashed_password, password_changed_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -64,12 +77,15 @@ func (q *Queries) GetUsers(ctx context.Context, id int64) (User, error) {
 		&i.Email,
 		&i.CreatedAt,
 		&i.DeletedAt,
+		&i.UserName,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, email, created_at, deleted_at 
+SELECT id, first_name, last_name, email, created_at, deleted_at, user_name, hashed_password, password_changed_at 
 FROM 
   users
 ORDER BY 
@@ -99,6 +115,9 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 			&i.Email,
 			&i.CreatedAt,
 			&i.DeletedAt,
+			&i.UserName,
+			&i.HashedPassword,
+			&i.PasswordChangedAt,
 		); err != nil {
 			return nil, err
 		}

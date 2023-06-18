@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"time"
 )
 
 type Currency string
@@ -81,10 +82,13 @@ type Transfer struct {
 }
 
 type User struct {
-	ID        int64          `json:"id"`
-	FirstName sql.NullString `json:"first_name"`
-	LastName  sql.NullString `json:"last_name"`
-	Email     string         `json:"email"`
-	CreatedAt sql.NullTime   `json:"created_at"`
-	DeletedAt sql.NullTime   `json:"deleted_at"`
+	ID                int64          `json:"id"`
+	FirstName         sql.NullString `json:"first_name"`
+	LastName          sql.NullString `json:"last_name"`
+	Email             string         `json:"email"`
+	CreatedAt         sql.NullTime   `json:"created_at"`
+	DeletedAt         sql.NullTime   `json:"deleted_at"`
+	UserName          string         `json:"user_name"`
+	HashedPassword    string         `json:"hashed_password"`
+	PasswordChangedAt time.Time      `json:"password_changed_at"`
 }
