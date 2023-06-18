@@ -345,3 +345,17 @@ func (mr *MockIStoreMockRecorder) UpdateUser(arg0, arg1 interface{}) *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockIStore)(nil).UpdateUser), arg0, arg1)
 }
+
+// UpdateUserPassword mocks base method.
+func (m *MockIStore) UpdateUserPassword(arg0 context.Context, arg1 db.UpdateUserPasswordParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserPassword", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserPassword indicates an expected call of UpdateUserPassword.
+func (mr *MockIStoreMockRecorder) UpdateUserPassword(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPassword", reflect.TypeOf((*MockIStore)(nil).UpdateUserPassword), arg0, arg1)
+}

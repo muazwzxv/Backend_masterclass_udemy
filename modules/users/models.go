@@ -18,3 +18,11 @@ type CreateUser struct {
 	LastName  string
 	Email     string
 }
+
+type UpdateUser struct {
+  // TODO:
+}
+
+type UpdatePassword struct {
+  // TODO:
+}

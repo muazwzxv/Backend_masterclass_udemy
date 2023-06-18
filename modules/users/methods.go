@@ -33,3 +33,15 @@ func (m *Module) FindUser(ctx context.Context, id int64) (*User, error) {
   }
   return convertToModuleUser(&user), nil
 }
+
+func (m *Module) UpdateUser(ctx context.Context, data *UpdateUser) error {
+  // TODO:
+  return nil
+}
+
+
+func (m *Module) UpdatePassword(ctx context.Context, data *UpdatePassword) error {
+  // TODO:
+  return nil
+}
+

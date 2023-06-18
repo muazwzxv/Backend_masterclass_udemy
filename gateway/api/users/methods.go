@@ -51,3 +51,10 @@ func (h *Handler) GetUser(ctx *gin.Context) {
   ctx.JSON(http.StatusOK, utils.ToResponseBody(convertToResponseUser(user)))
 }
 
+func (h *Handler) UpdateUser(ctx *gin.Context) {
+  // TODO:
+}
+
+func (h *Handler) UpdatePassword(ctx *gin.Context) {
+  // TODO:
+}

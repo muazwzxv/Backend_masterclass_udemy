@@ -10,6 +10,8 @@ import (
 type IUsers interface{
   CreateUser(ctx context.Context, data *CreateUser) (*User, error)
   FindUser(ctx context.Context, id int64) (*User, error)
+  UpdateUser(ctx context.Context, data *UpdateUser) error
+  UpdatePassword(ctx context.Context, data *UpdatePassword) error
 }
 
 type Module struct {
