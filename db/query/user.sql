@@ -31,5 +31,15 @@ SET
 WHERE 
   id = $3;
 
+-- name: UpdateUserPassword :exec
+UPDATE
+  users
+SET
+  hashed_password = $1,
+  password_changed_at = now()
+WHERE
+  id = $2;
+  
+
 -- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1;

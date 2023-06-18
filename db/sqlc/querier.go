@@ -29,6 +29,7 @@ type Querier interface {
 	UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error)
 	UpdateAccountCurrency(ctx context.Context, arg UpdateAccountCurrencyParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error
 }
 
 var _ Querier = (*Queries)(nil)
