@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/muazwzxv/go-backend-masterclass/gateway/utils"
+	dbErr "github.com/muazwzxv/go-backend-masterclass/db"
 	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
 )
 
@@ -22,6 +23,10 @@ func (h *Handler) CreateAccount(ctx *gin.Context) {
 		Balance:  0,
 	})
 	if err != nil {
+		errCode := dbErr.ErrorCode(err)
+		if errCode == dbErr.ForeignKeyViolation || errCode == dbErr.UniqueViolation {
+      ctx.AbortWithStatus(http.StatusForbidden)
+		}
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
