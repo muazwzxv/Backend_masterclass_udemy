@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/muazwzxv/go-backend-masterclass/gateway/utils"
-	dbErr "github.com/muazwzxv/go-backend-masterclass/db"
+	dbErr "github.com/muazwzxv/go-backend-masterclass/db/errors"
 	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
 )
 

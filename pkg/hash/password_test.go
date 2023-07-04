@@ -51,7 +51,7 @@ func TestCheckPassword(t *testing.T) {
 		{
 			Title:       "Password does not match",
 			Hashed:      "$2a$10$A.jSUk9RYIt.eXgSPP4JGuD1WwaU1UuQRyOE9FW4aEfnmhleZEI2e,",
-			Password:    "Another one ",
+			Password:    "Another one",
 			ExpectedErr: bcrypt.ErrMismatchedHashAndPassword,
 		},
 	}

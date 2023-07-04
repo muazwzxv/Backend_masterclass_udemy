@@ -17,12 +17,13 @@ type CreateUser struct {
 	FirstName string
 	LastName  string
 	Email     string
+	Password  string
 }
 
 type UpdateUser struct {
-  // TODO:
+	// TODO:
 }
 
 type UpdatePassword struct {
-  // TODO:
+	// TODO:
 }

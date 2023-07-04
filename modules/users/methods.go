@@ -5,14 +5,23 @@ import (
 	"database/sql"
 
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/hash"
 	"github.com/pkg/errors"
 )
 
 func (m *Module) CreateUser(ctx context.Context, data *CreateUser) (*User, error) {
+
+  hashed, err := hash.HashPassword(data.Password)
+  if err != nil {
+    m.log.Error("m.db.CreateUser: %v", err)
+    return nil, errors.Wrap(err, "hash.HashPassword")
+  }
+
 	user, err := m.db.CreateUser(ctx, db.CreateUserParams{
     FirstName: sql.NullString{String: data.FirstName, Valid: true},
     LastName: sql.NullString{String: data.LastName, Valid: true},
     Email: data.Email,
+    HashedPassword: hashed,
   })
   if err != nil {
     m.log.Errorf("m.db.CreateUser: %v", err)
