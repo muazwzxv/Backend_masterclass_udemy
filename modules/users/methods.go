@@ -23,7 +23,7 @@ func (m *Module) CreateUser(ctx context.Context, data *CreateUser) (*User, error
 }
 
 func (m *Module) FindUser(ctx context.Context, id int64) (*User, error) {
-  user, err := m.db.GetUsers(ctx, id)
+  user, err := m.db.GetUser(ctx, id)
   if err != nil {
     m.log.Errorf("m.db.Getusers: %v", err)
     if err == sql.ErrNoRows {
