@@ -13,6 +13,8 @@ type Jwt struct {
 	secretKey string
 }
 
+var _ IToken = (*Jwt)(nil)
+
 func NewJwt(secretKey string) (*Jwt, error) {
 	if len(secretKey) < minSecretKey {
 		return nil, ErrInvalidKeySize

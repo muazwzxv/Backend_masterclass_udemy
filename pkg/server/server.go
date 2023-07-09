@@ -12,6 +12,8 @@ type Server struct {
 	Log   *zap.SugaredLogger
 }
 
+var _ IServer = (*Server)(nil)
+
 func NewServer(
 	store db.IStore,
 	log *zap.SugaredLogger,
