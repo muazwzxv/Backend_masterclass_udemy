@@ -28,7 +28,7 @@ func (m *Module) FindAccount(ctx context.Context, id int64) (*Account, error) {
 	if err != nil {
 		m.log.Errorf("m.db.GetAccount: %v", err)
 		if err == sql.ErrNoRows {
-			return nil, NotFound
+			return nil, ErrNotFound
 		}
 		return nil, errors.Wrapf(err, "m.FindAccount")
 	}
@@ -52,7 +52,7 @@ func (m *Module) ValidateAccount(ctx context.Context, accountID int64, currency 
 	acc, err := m.db.GetAccount(ctx, accountID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return false, NotFound
+			return false, ErrNotFound
 		}
 		return false, errors.Wrapf(err, "m.ValidateAccount")
 	}

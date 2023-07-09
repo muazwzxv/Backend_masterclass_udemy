@@ -45,7 +45,7 @@ func TestGetAccount(t *testing.T) {
 		{
 			Name:        "Account Not found",
 			AccountID:   20,
-			ExpectedErr: accounts.NotFound,
+			ExpectedErr: accounts.ErrNotFound,
 			buildStubs: func(store *mockdb.MockIStore) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Any()).

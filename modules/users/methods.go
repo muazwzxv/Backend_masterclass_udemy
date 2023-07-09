@@ -36,7 +36,7 @@ func (m *Module) FindUser(ctx context.Context, id int64) (*User, error) {
   if err != nil {
     m.log.Errorf("m.db.Getusers: %v", err)
     if err == sql.ErrNoRows {
-      return nil, NotFound
+      return nil, ErrNotFound
     }
     return nil, errors.Wrapf(err, "m.FindUser")
   }

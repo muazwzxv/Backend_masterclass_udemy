@@ -44,7 +44,7 @@ func (h *Handler) GetAccount(ctx *gin.Context) {
 	acc, err := h.m.FindAccount(ctx, req.ID)
 	if err != nil {
 		h.log.Errorf("h.GetAccount: %v", err)
-		if err == accountsModule.NotFound {
+		if err == accountsModule.ErrNotFound {
 			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
 			return
 		}

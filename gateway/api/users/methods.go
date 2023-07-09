@@ -46,7 +46,7 @@ func (h *Handler) GetUser(ctx *gin.Context) {
 	user, err := h.m.FindUser(ctx, req.ID)
 	if err != nil {
 		h.log.Errorf("h.GetUser: %v", err)
-		if err == usersModule.NotFound {
+		if err == usersModule.ErrNotFound {
 			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(err))
 			return
 		}
