@@ -14,8 +14,8 @@ import (
 	transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
 	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
 	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
-	"github.com/muazwzxv/go-backend-masterclass/pkg"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
 	"go.uber.org/zap"
 )
 
@@ -44,15 +44,17 @@ func main() {
 		  LOGGER should be in handler layer or module layer?
 	    RN IM PUTTING IT IN BOTH
 	*/
-	server := pkg.NewServer(store, sugaredLogger)
+	server := server.NewServer(store, sugaredLogger)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
+  
 	if err = server.Start(cfg.ServerAddress); err != nil {
+    // TODO: Implement graceful shutdown
 		sugaredLogger.Fatal("cannot start server: ", err)
 	}
 }
 
-func InitializeModules(server *pkg.Server) *APIGateway.Gateway {
+func InitializeModules(server *server.Server) *APIGateway.Gateway {
 	accounts := accountsModule.New(server.Store, server.Log)
 	accHandler := accountsHandler.New(accounts, server.Log)
 

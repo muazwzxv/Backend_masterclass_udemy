@@ -3,9 +3,11 @@ module github.com/muazwzxv/go-backend-masterclass
 go 1.19
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/golang/mock v1.4.4
+	github.com/google/uuid v1.1.2
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.15.0
