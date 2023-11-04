@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
@@ -14,10 +15,13 @@ import (
 	transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
 	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
 	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
+	"github.com/muazwzxv/go-backend-masterclass/pb"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/authToken"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/rpcServer"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -52,13 +56,37 @@ func main() {
 		sugaredLogger.Fatal("failed to create token instance", err)
 	}
 
-	server := server.NewServer(cfg, store, sugaredLogger, token)
+	//runHttpServer(cfg, store, sugaredLogger, token)
+	runRpcServer(cfg, store, sugaredLogger, token)
+}
+
+func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
+	rpc := rpcServer.NewServer(cfg, store, token)
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterUserServiceServer(grpcServer, rpc)
+
+	listener, err := net.Listen("tcp", cfg.RpcServerAddress)
+	if err != nil {
+		log.Fatal("cannot start rpc listener")
+	}
+
+	log.Info("start gRPC server at %s", listener.Addr().String())
+
+	err = grpcServer.Serve(listener)
+	if err != nil {
+		log.Fatal("failed to start gRPC server")
+	}
+}
+
+func runHttpServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
+	server := server.NewServer(cfg, store, log, token)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
 
-	if err = server.Start(cfg.ServerAddress); err != nil {
+	if err := server.Start(cfg.HttpServerAddress); err != nil {
 		// TODO: Implement graceful shutdown
-		sugaredLogger.Fatal("cannot start server: ", err)
+		log.Fatal("cannot start server: ", err)
 	}
 }
 

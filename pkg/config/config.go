@@ -12,7 +12,8 @@ type Config struct {
 	DBSource string `mapstructure:"DB_SOURCE"`
 
 	// Server
-	ServerAddress string `mapstructure:"APP_ADDRESS"`
+	HttpServerAddress string `mapstructure:"HTTP_APP_ADDRESS"`
+	RpcServerAddress  string `mapstructure:"RPC_APP_ADDRESS"`
 
 	// Authentication
 	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
