@@ -20,6 +20,16 @@ type CreateUser struct {
 	Password  string
 }
 
+type LoginUserRequest struct {
+	UserName string
+	Password string
+}
+
+type LoginResponse struct {
+	Token    string
+	UserData User
+}
+
 type UpdateUser struct {
 	// TODO:
 }

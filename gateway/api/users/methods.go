@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -56,6 +57,30 @@ func (h *Handler) GetUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, utils.ToResponseBody(convertToResponseUser(user)))
+}
+
+func (h *Handler) LoginUser(ctx *gin.Context) {
+	var req LoginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.log.Errorf("h.LoginUser: %v", err)
+		ctx.JSON(http.StatusBadRequest, utils.ErrorResponse(utils.BadRequest))
+		return
+	}
+
+	res, err := h.m.LoginUser(ctx, &usersModule.LoginUserRequest{
+		UserName: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		if errors.Is(usersModule.ErrNotFound, err) {
+			ctx.JSON(http.StatusNotFound, utils.ErrorResponse(utils.NotFound))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, utils.ErrorResponse(utils.InternalServer))
+	}
+
+  ctx.JSON(http.StatusOK, LoginUserResponse{LoginResponse: res})
 }
 
 func (h *Handler) UpdateUser(ctx *gin.Context) {

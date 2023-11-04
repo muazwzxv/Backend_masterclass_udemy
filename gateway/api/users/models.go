@@ -1,6 +1,10 @@
 package users
 
-import "time"
+import (
+	"time"
+
+	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
+)
 
 type CreateUserRequest struct {
 	FirstName string `json:"first_name" binding:"required"`
@@ -20,4 +24,13 @@ type User struct {
 	Email     string     `json:"email"`
 	CreatedAt *time.Time `json:"created_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required,alphanum"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type LoginUserResponse struct {
+	*usersModule.LoginResponse
 }

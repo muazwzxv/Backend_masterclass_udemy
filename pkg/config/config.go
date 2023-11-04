@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"time"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	// Database
@@ -10,9 +14,9 @@ type Config struct {
 	// Server
 	ServerAddress string `mapstructure:"APP_ADDRESS"`
 
-  // Authentication
-	TokenSymmetricKey   string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-	AccessTokenDuration string `mapstructure:"ACCESS_TOKEN_DURATION"`
+	// Authentication
+	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (*Config, error) {

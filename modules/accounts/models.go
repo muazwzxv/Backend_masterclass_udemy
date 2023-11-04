@@ -25,3 +25,4 @@ type GetAccounts struct {
 	Limit  int32
 	Offset int32
 }
+

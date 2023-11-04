@@ -46,13 +46,13 @@ func main() {
 	    RN IM PUTTING IT IN BOTH
 	*/
 
-  // TODO - Put symmetric key in config file
+	// TODO - Put symmetric key in config file
 	token, err := authToken.NewPaseto(cfg.TokenSymmetricKey)
 	if err != nil {
 		sugaredLogger.Fatal("failed to create token instance", err)
 	}
 
-	server := server.NewServer(store, sugaredLogger, token)
+	server := server.NewServer(cfg, store, sugaredLogger, token)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
 
@@ -66,7 +66,7 @@ func InitializeModules(server *server.Server) *APIGateway.Gateway {
 	accounts := accountsModule.New(server.Store, server.Log)
 	accHandler := accountsHandler.New(accounts, server.Log)
 
-	users := usersModule.New(server.Store, server.Log)
+	users := usersModule.New(server.Config, server.Store, server.Log, server.Token)
 	usersHandler := usersHandler.New(users, server.Log)
 
 	transfers := transfersModule.New(

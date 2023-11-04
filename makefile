@@ -30,4 +30,9 @@ run:
 mock-db:
 	mockgen -package mockdb -destination ./db/mock/store.go  github.com/muazwzxv/go-backend-masterclass/db/sqlc IStore
 
-.PHONY: database.create database.drop migrations.up migrations.down migrations.new gen database.reset test run mock
+proto:
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+		--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+		proto/*.proto
+
+.PHONY: database.create database.drop migrations.up migrations.down migrations.new gen database.reset test run mock proto

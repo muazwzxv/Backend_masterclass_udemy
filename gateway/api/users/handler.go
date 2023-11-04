@@ -26,5 +26,6 @@ func (h *Handler) Routes(route *gin.RouterGroup) {
   {
     v1.GET("/user/:id", h.GetUser)
     v1.POST("/user", h.CreateUser)
+    v1.POST("/login", h.LoginUser)
   }
 }

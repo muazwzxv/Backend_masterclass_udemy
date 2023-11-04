@@ -10,7 +10,8 @@ import (
 type IAccounts interface {
 	CreateAccount(ctx context.Context, data *CreateAccount) (*Account, error)
 	FindAccount(ctx context.Context, id int64) (*Account, error)
-  ListAccounts(ctx context.Context, query *GetAccounts) ([]*Account, error)
+	ListAccounts(ctx context.Context, query *GetAccounts) ([]*Account, error)
+	ValidateAccount(ctx context.Context, accountID int64, currency string) (bool, error)
 }
 
 type Module struct {
@@ -19,12 +20,12 @@ type Module struct {
 }
 
 func New(
-  db db.IStore, 
-  log *zap.SugaredLogger,
+	db db.IStore,
+	log *zap.SugaredLogger,
 ) *Module {
 	return &Module{
-		db: db,
-    log: log,
+		db:  db,
+		log: log,
 	}
 }
 
