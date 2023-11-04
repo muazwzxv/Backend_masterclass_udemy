@@ -13,7 +13,7 @@ type Paseto struct {
 	symmetricKey []byte
 }
 
-func NewPaseto(symmetricKey string) (IToken, error) {
+func NewPaseto(symmetricKey string) (*Paseto, error) {
 	if len(symmetricKey) != chacha20poly1305.KeySize {
 		return nil, fmt.Errorf("invalid key size: must be exactly %d characters", chacha20poly1305.KeySize)
 	}
@@ -36,16 +36,16 @@ func (p *Paseto) CreateToken(username string, duration time.Duration) (string, e
 }
 
 func (p *Paseto) VerifyToken(token string) (*Payload, error) {
-  payload := &Payload{}
-  err := p.paseto.Decrypt(token, p.symmetricKey, payload, nil)
-  if err != nil {
-    return nil, ErrInvalidToken
-  }
+	payload := &Payload{}
+	err := p.paseto.Decrypt(token, p.symmetricKey, payload, nil)
+	if err != nil {
+		return nil, ErrInvalidToken
+	}
 
-  err = payload.Valid()
-  if err != nil {
-    return nil, err
-  }
+	err = payload.Valid()
+	if err != nil {
+		return nil, err
+	}
 
 	return payload, nil
 }

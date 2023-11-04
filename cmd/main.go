@@ -14,6 +14,7 @@ import (
 	transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
 	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
 	usersModule "github.com/muazwzxv/go-backend-masterclass/modules/users"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/authToken"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
 	"go.uber.org/zap"
@@ -44,12 +45,19 @@ func main() {
 		  LOGGER should be in handler layer or module layer?
 	    RN IM PUTTING IT IN BOTH
 	*/
-	server := server.NewServer(store, sugaredLogger)
+
+  // TODO - Put symmetric key in config file
+	token, err := authToken.NewPaseto(cfg.TokenSymmetricKey)
+	if err != nil {
+		sugaredLogger.Fatal("failed to create token instance", err)
+	}
+
+	server := server.NewServer(store, sugaredLogger, token)
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
-  
+
 	if err = server.Start(cfg.ServerAddress); err != nil {
-    // TODO: Implement graceful shutdown
+		// TODO: Implement graceful shutdown
 		sugaredLogger.Fatal("cannot start server: ", err)
 	}
 }
