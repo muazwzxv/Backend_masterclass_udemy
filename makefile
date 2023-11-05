@@ -36,4 +36,7 @@ proto:
 		--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
 		proto/*.proto
 
+evans:
+	evans --host localhost --port 9090 -r repl
+
 .PHONY: database.create database.drop migrations.up migrations.down migrations.new gen database.reset test run mock proto

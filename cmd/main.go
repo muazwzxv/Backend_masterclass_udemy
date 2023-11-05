@@ -22,6 +22,7 @@ import (
 	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -78,6 +79,7 @@ func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, t
 
 	log.Info("start gRPC server at %s", listener.Addr().String())
 
+	reflection.Register(grpcServer)
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatal("failed to start gRPC server")
