@@ -11,6 +11,7 @@ import (
 	accountsHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/accounts"
 	transfersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/transfers"
 	usersHandler "github.com/muazwzxv/go-backend-masterclass/gateway/api/users"
+	"github.com/muazwzxv/go-backend-masterclass/gateway/rpc/user"
 	accountsModule "github.com/muazwzxv/go-backend-masterclass/modules/accounts"
 	transfersModule "github.com/muazwzxv/go-backend-masterclass/modules/transfers"
 	adapter "github.com/muazwzxv/go-backend-masterclass/modules/transfers/adapters/accounts"
@@ -67,10 +68,18 @@ func main() {
 }
 
 func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
-	rpc := rpcServer.NewServer(cfg, store, token)
+  // Base RPC server dependency
+	rpc := rpcServer.NewServer(cfg, store, log, token)
 
+  // Setup services
+	usersModule := usersModule.New(rpc.Config, rpc.Store, rpc.Log, rpc.Token)
+  userService := user.NewUserServiceServer(rpc, usersModule)
+
+  // Setup gRPC server
 	grpcServer := grpc.NewServer()
-	pb.RegisterUserServiceServer(grpcServer, rpc)
+
+  // Register services to gRPC server
+	pb.RegisterUserServiceServer(grpcServer, userService)
 
 	listener, err := net.Listen("tcp", cfg.RpcServerAddress)
 	if err != nil {
