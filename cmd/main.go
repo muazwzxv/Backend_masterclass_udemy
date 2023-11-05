@@ -56,8 +56,13 @@ func main() {
 		sugaredLogger.Fatal("failed to create token instance", err)
 	}
 
-	//runHttpServer(cfg, store, sugaredLogger, token)
-	runRpcServer(cfg, store, sugaredLogger, token)
+	if cfg.RunServer == "RPC" {
+		runRpcServer(cfg, store, sugaredLogger, token)
+	}
+
+	if cfg.RunServer == "HTTP" {
+		runHttpServer(cfg, store, sugaredLogger, token)
+	}
 }
 
 func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {

@@ -14,6 +14,7 @@ type Config struct {
 	// Server
 	HttpServerAddress string `mapstructure:"HTTP_APP_ADDRESS"`
 	RpcServerAddress  string `mapstructure:"RPC_APP_ADDRESS"`
+	RunServer         string `mapstructure:"RUN_SERVER"`
 
 	// Authentication
 	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
