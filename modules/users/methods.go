@@ -19,6 +19,7 @@ func (m *Module) CreateUser(ctx context.Context, data *CreateUser) (*User, error
 	user, err := m.db.CreateUser(ctx, db.CreateUserParams{
 		FirstName:      sql.NullString{String: data.FirstName, Valid: true},
 		LastName:       sql.NullString{String: data.LastName, Valid: true},
+		UserName:       data.UserName,
 		Email:          data.Email,
 		HashedPassword: hashed,
 	})
@@ -55,14 +56,14 @@ func (m *Module) LoginUser(ctx context.Context, data *LoginUserRequest) (*LoginR
 
 	// Create token
 	userToken, err := m.token.CreateToken(data.UserName, m.Config.AccessTokenDuration)
-  if err != nil {
-    return nil, errors.Wrap(err, ErrFaileToGenerateToken.Error())
-  }
+	if err != nil {
+		return nil, errors.Wrap(err, ErrFaileToGenerateToken.Error())
+	}
 
-  res := &LoginResponse{
-    Token: userToken,
-    UserData: *convertToModuleUser(&user),
-  }
+	res := &LoginResponse{
+		Token:    userToken,
+		UserData: *convertToModuleUser(&user),
+	}
 
 	return res, nil
 }

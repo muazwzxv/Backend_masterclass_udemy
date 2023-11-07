@@ -13,6 +13,7 @@ func (h *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 	arg := &users.CreateUser{
 		FirstName: req.GetFirstName(),
 		LastName:  req.GetLastName(),
+		UserName:  req.GetUserName(),
 		Email:     req.GetEmail(),
 		Password:  req.GetPassword(),
 	}
@@ -26,6 +27,7 @@ func (h *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		User: &pb.User{
 			Id:        user.ID,
 			FirstName: user.FirstName,
+			UserName:  user.UserName,
 			LastName:  user.LastName,
 			Email:     user.Email,
 		},

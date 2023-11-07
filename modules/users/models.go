@@ -8,6 +8,7 @@ type User struct {
 	ID        int64
 	FirstName string
 	LastName  string
+	UserName  string
 	Email     string
 	CreatedAt *time.Time
 	DeletedAt *time.Time
@@ -16,6 +17,7 @@ type User struct {
 type CreateUser struct {
 	FirstName string
 	LastName  string
+	UserName  string
 	Email     string
 	Password  string
 }
