@@ -68,6 +68,18 @@ func (m *Module) LoginUser(ctx context.Context, data *LoginUserRequest) (*LoginR
 	return res, nil
 }
 
+func (m *Module) FindUserByUserName(ctx context.Context, userName string) (*User, error) {
+  user, err := m.db.GetUserByUsername(ctx, userName) 
+  if err != nil {
+		m.log.Errorf("m.db.GetUserByUsername: %v", err)
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, errors.Wrapf(err, "m.FindUser")
+  }
+  return convertToModuleUser(&user), nil
+}
+
 func (m *Module) UpdateUser(ctx context.Context, data *UpdateUser) error {
 	// TODO:
 	return nil

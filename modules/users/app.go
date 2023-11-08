@@ -15,6 +15,7 @@ type IUsers interface {
 	UpdateUser(ctx context.Context, data *UpdateUser) error
 	UpdatePassword(ctx context.Context, data *UpdatePassword) error
 	LoginUser(ctx context.Context, data *LoginUserRequest) (*LoginResponse, error)
+	FindUserByUserName(ctx context.Context, userName string) (*User, error)
 }
 
 type Module struct {
