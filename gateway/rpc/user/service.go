@@ -15,6 +15,6 @@ type UserService struct {
 func NewUserServiceServer(rpc *rpcServer.Server, module users.IUsers) *UserService {
 	return &UserService{
 		rpcServer: rpc,
-    m: module,
+		m:         module,
 	}
 }

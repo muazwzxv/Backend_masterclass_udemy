@@ -58,22 +58,27 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginUserRequest) (*pb.
 		UserName: req.GetUserName(),
 		Password: req.GetPassword(),
 	})
-  if err != nil {
-    // TODO - proper error handling
+	if err != nil {
+		// TODO - proper error handling
 		return nil, status.Errorf(codes.Unauthenticated, "internal server")
-  }
+	}
 
-  res := &pb.LoginUserResponse{
-    User: &pb.User{
-      Id: user.ID,
-      FirstName: user.FirstName,
-      LastName: user.LastName,
-      Email: user.Email,
-      UserName: user.UserName,
-      CreatedAt: timestamppb.New(*user.CreatedAt),
-      DeletedAt: timestamppb.New(*user.DeletedAt),
-    },
-    AccessToken: loginData.Token,
-  }
-  return res, nil
+	userRes := &pb.User{
+		Id:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		UserName:  user.UserName,
+		CreatedAt: timestamppb.New(*user.CreatedAt),
+	}
+
+	if user.DeletedAt != nil {
+		userRes.DeletedAt = timestamppb.New(*user.DeletedAt)
+	}
+
+	res := &pb.LoginUserResponse{
+		User:        userRes,
+		AccessToken: loginData.Token,
+	}
+	return res, nil
 }

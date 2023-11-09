@@ -1,6 +1,8 @@
 package users
 
-import db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
+import (
+	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
+)
 
 func convertToModuleUser(usr *db.User) *User {
 	user := &User{
