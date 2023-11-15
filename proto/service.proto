@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package pb;
 
+import "google/api/annotations.proto";
 import "user.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -31,6 +32,17 @@ message LoginUserResponse {
 }
 
 service UserService {
-  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
-  rpc Login (LoginUserRequest) returns (LoginUserResponse) {}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/create-user"
+      body: "*"
+    };
+  }
+
+  rpc Login (LoginUserRequest) returns (LoginUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/login"
+      body: "*"
+    };
+  }
 }
