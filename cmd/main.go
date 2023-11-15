@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net"
+	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
 	APIGateway "github.com/muazwzxv/go-backend-masterclass/gateway/api"
@@ -52,33 +55,67 @@ func main() {
 	    RN IM PUTTING IT IN BOTH
 	*/
 
-	// TODO - Put symmetric key in config file
 	token, err := authToken.NewPaseto(cfg.TokenSymmetricKey)
 	if err != nil {
 		sugaredLogger.Fatal("failed to create token instance", err)
 	}
 
-	if cfg.RunServer == "RPC" {
+	switch cfg.RunServer {
+	case "RPC":
+		runRpcServer(cfg, store, sugaredLogger, token)
+	case "HTTP":
+		runHttpServer(cfg, store, sugaredLogger, token)
+	default:
+		go runGatewayServer(cfg, store, sugaredLogger, token)
 		runRpcServer(cfg, store, sugaredLogger, token)
 	}
+}
 
-	if cfg.RunServer == "HTTP" {
-		runHttpServer(cfg, store, sugaredLogger, token)
+func runGatewayServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
+	// Base RPC server dependency
+	rpc := rpcServer.NewServer(cfg, store, log, token)
+
+	// Setup services
+	usersModule := usersModule.New(rpc.Config, rpc.Store, rpc.Log, rpc.Token)
+	userService := user.NewUserServiceServer(rpc, usersModule)
+
+	rpcMux := runtime.NewServeMux()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err := pb.RegisterUserServiceHandlerServer(ctx, rpcMux, userService)
+	if err != nil {
+		log.Fatal("cannot register handler server")
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", rpcMux)
+
+	listener, err := net.Listen("tcp", cfg.HttpServerAddress)
+	if err != nil {
+		log.Fatal("cannot start rpc listener")
+	}
+
+	log.Info("start HTTP gateway server at %s", listener.Addr().String())
+
+	err = http.Serve(listener, mux)
+	if err != nil {
+		log.Fatal("failed to start HTTP gateway server")
 	}
 }
 
 func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
-  // Base RPC server dependency
+	// Base RPC server dependency
 	rpc := rpcServer.NewServer(cfg, store, log, token)
 
-  // Setup services
+	// Setup services
 	usersModule := usersModule.New(rpc.Config, rpc.Store, rpc.Log, rpc.Token)
-  userService := user.NewUserServiceServer(rpc, usersModule)
+	userService := user.NewUserServiceServer(rpc, usersModule)
 
-  // Setup gRPC server
+	// Setup gRPC server
 	grpcServer := grpc.NewServer()
 
-  // Register services to gRPC server
+	// Register services to gRPC server
 	pb.RegisterUserServiceServer(grpcServer, userService)
 
 	listener, err := net.Listen("tcp", cfg.RpcServerAddress)
