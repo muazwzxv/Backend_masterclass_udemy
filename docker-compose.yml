@@ -13,6 +13,19 @@ services:
     networks:
       - database
     restart: unless-stopped
+  redis:
+    container_name: redis-backend-masterclass
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-volume:/root/redis
+      - redis-volume:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=root
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
 
 networks:
   database:
@@ -20,3 +33,4 @@ networks:
 
 volumes:
   postgres:
+  redis-volume:

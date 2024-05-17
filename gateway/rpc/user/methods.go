@@ -8,6 +8,7 @@ import (
 	"github.com/muazwzxv/go-backend-masterclass/modules/users"
 	"github.com/muazwzxv/go-backend-masterclass/pb"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/hash"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/worker"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,7 +25,19 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 
 	user, err := s.m.CreateUser(ctx, arg)
 	if err != nil {
+		s.rpcServer.Log.Infof("[CreateUser] - failed create user: %w", err)
 		return nil, status.Error(codes.Internal, "internal server")
+	}
+
+	payload := &worker.PayloadSendVerifyEmail{
+		UserID: user.ID,
+	}
+
+  // TODO: worker and insert user should be in one transaction
+	err = s.rpcServer.TaskDistributor.SendVerifyEmail(ctx, payload)
+	if err != nil {
+		s.rpcServer.Log.Infof("[worker] - failed to send verification email: %w", err)
+		return nil, status.Errorf(codes.Internal, "internal server")
 	}
 
 	res := &pb.CreateUserResponse{
@@ -59,7 +72,6 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginUserRequest) (*pb.
 		Password: req.GetPassword(),
 	})
 	if err != nil {
-		// TODO - proper error handling
 		return nil, status.Errorf(codes.Unauthenticated, "internal server")
 	}
 

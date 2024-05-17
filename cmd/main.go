@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/hibiken/asynq"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
 	APIGateway "github.com/muazwzxv/go-backend-masterclass/gateway/api"
@@ -24,6 +25,7 @@ import (
 	"github.com/muazwzxv/go-backend-masterclass/pkg/config"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/rpcServer"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
+	"github.com/muazwzxv/go-backend-masterclass/pkg/worker"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -46,6 +48,14 @@ func main() {
 	}
 	store := db.NewStore(database)
 
+	// connect to redis
+	redisOpt := asynq.RedisClientOpt{
+		Addr:     cfg.RedisAddress,
+		Password: cfg.RedisPassword,
+	}
+
+	taskDist := worker.NewRedisTaskDistributor(redisOpt)
+
 	// setup logger
 	log, _ := zap.NewDevelopment()
 	sugaredLogger := log.Sugar()
@@ -62,18 +72,23 @@ func main() {
 
 	switch cfg.RunServer {
 	case "RPC":
-		runRpcServer(cfg, store, sugaredLogger, token)
+		runRpcServer(cfg, store, sugaredLogger, token, taskDist)
 	case "HTTP":
 		runHttpServer(cfg, store, sugaredLogger, token)
 	default:
 		go runGatewayServer(cfg, store, sugaredLogger, token)
-		runRpcServer(cfg, store, sugaredLogger, token)
+		runRpcServer(cfg, store, sugaredLogger, token, taskDist)
 	}
 }
 
 func runGatewayServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
 	// Base RPC server dependency
-	rpc := rpcServer.NewServer(cfg, store, log, token)
+	rpc := rpcServer.NewServer(rpcServer.ServerRequest{
+		Cfg:   cfg,
+		Store: store,
+		Log:   log,
+		Token: token,
+	})
 
 	// Setup services
 	usersModule := usersModule.New(rpc.Config, rpc.Store, rpc.Log, rpc.Token)
@@ -104,9 +119,15 @@ func runGatewayServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogge
 	}
 }
 
-func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
+func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken, taskDistributor worker.TaskDistributor) {
 	// Base RPC server dependency
-	rpc := rpcServer.NewServer(cfg, store, log, token)
+	rpc := rpcServer.NewServer(rpcServer.ServerRequest{
+		Cfg:             cfg,
+		Store:           store,
+		Log:             log,
+		Token:           token,
+		TaskDistributor: taskDistributor,
+	})
 
 	// Setup services
 	usersModule := usersModule.New(rpc.Config, rpc.Store, rpc.Log, rpc.Token)
@@ -133,7 +154,12 @@ func runRpcServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, t
 }
 
 func runHttpServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, token authToken.IToken) {
-	server := server.NewServer(cfg, store, log, token)
+	server := server.NewServer(server.HttpServerRequest{
+		Config: cfg,
+		Store:  store,
+		Log:    log,
+		Token:  token,
+	})
 	gateway := InitializeModules(server)
 	gateway.Init(server.Mux)
 

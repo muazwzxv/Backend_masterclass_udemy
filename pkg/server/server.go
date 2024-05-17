@@ -18,19 +18,21 @@ type Server struct {
 
 var _ IServer = (*Server)(nil)
 
-func NewServer(
-	Config *config.Config,
-	store db.IStore,
-	log *zap.SugaredLogger,
-	token authToken.IToken,
-) *Server {
+type HttpServerRequest struct {
+	Config *config.Config
+	Store  db.IStore
+	Log    *zap.SugaredLogger
+	Token  authToken.IToken
+}
+
+func NewServer(req HttpServerRequest) *Server {
 	mux := gin.Default()
 
 	server := &Server{
-		Store: store,
+		Store: req.Store,
 		Mux:   mux,
-		Log:   log,
-		Token: token,
+		Log:   req.Log,
+		Token: req.Token,
 	}
 	return server
 }
