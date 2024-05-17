@@ -26,6 +26,7 @@ import (
 	"github.com/muazwzxv/go-backend-masterclass/pkg/rpcServer"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/server"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/worker"
+	"github.com/muazwzxv/go-backend-masterclass/tools"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -76,6 +77,7 @@ func main() {
 	case "HTTP":
 		runHttpServer(cfg, store, sugaredLogger, token)
 	default:
+		go runTaskProcessor(redisOpt, store)
 		go runGatewayServer(cfg, store, sugaredLogger, token)
 		runRpcServer(cfg, store, sugaredLogger, token, taskDist)
 	}
@@ -166,6 +168,15 @@ func runHttpServer(cfg *config.Config, store *db.Store, log *zap.SugaredLogger, 
 	if err := server.Start(cfg.HttpServerAddress); err != nil {
 		// TODO: Implement graceful shutdown
 		log.Fatal("cannot start server: ", err)
+	}
+}
+
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store *db.Store) {
+	processor := worker.NewRedisTaskProcessor(redisOpt, store)
+	tools.Logger.Info("starting task processor ....")
+	err := processor.Start()
+	if err != nil {
+		tools.Logger.Error("cannot start worker server", err)
 	}
 }
 

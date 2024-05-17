@@ -8,7 +8,6 @@ import (
 
 	"github.com/hibiken/asynq"
 	db "github.com/muazwzxv/go-backend-masterclass/db/sqlc"
-	"github.com/muazwzxv/go-backend-masterclass/pkg/worker"
 	"github.com/muazwzxv/go-backend-masterclass/tools"
 )
 
@@ -19,10 +18,10 @@ type TaskProcessor interface {
 
 type RedisTaskProcessor struct {
 	server *asynq.Server
-	store  db.Store
+	store  *db.Store
 }
 
-func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, db db.Store) TaskProcessor {
+func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, db *db.Store) TaskProcessor {
 	svr := asynq.NewServer(redisOpt, asynq.Config{
 		Concurrency: 10,
 	})
@@ -34,7 +33,7 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, db db.Store) TaskProce
 }
 
 func (t *RedisTaskProcessor) SendVerifyEmail(ctx context.Context, task *asynq.Task) error {
-	var payload worker.PayloadSendVerifyEmail
+	var payload PayloadSendVerifyEmail
 	if err := json.Unmarshal(task.Payload(), &payload); err != nil {
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
@@ -56,7 +55,7 @@ func (t *RedisTaskProcessor) SendVerifyEmail(ctx context.Context, task *asynq.Ta
 func (t *RedisTaskProcessor) Start() error {
 	mux := asynq.NewServeMux()
 
-	mux.HandleFunc(worker.TaskSendVerifyEmail, t.SendVerifyEmail)
+	mux.HandleFunc(TaskSendVerifyEmail, t.SendVerifyEmail)
 
 	return t.server.Start(mux)
 }
