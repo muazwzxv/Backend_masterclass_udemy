@@ -11,6 +11,11 @@ import (
 	"github.com/muazwzxv/go-backend-masterclass/tools"
 )
 
+const (
+	QueueCritical = "critical"
+	QueueDefault  = "default"
+)
+
 type TaskProcessor interface {
 	SendVerifyEmail(ctx context.Context, task *asynq.Task) error
 	Start() error
@@ -24,6 +29,10 @@ type RedisTaskProcessor struct {
 func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, db *db.Store) TaskProcessor {
 	svr := asynq.NewServer(redisOpt, asynq.Config{
 		Concurrency: 10,
+		Queues: map[string]int{
+			QueueCritical: 10,
+			QueueDefault:  5,
+		},
 	})
 
 	return &RedisTaskProcessor{
@@ -47,7 +56,7 @@ func (t *RedisTaskProcessor) SendVerifyEmail(ctx context.Context, task *asynq.Ta
 	}
 
 	// TODO: send email
-	tools.Logger.Info("Sending email verification for user ID: %d \n First Name: %s", user.ID, user.FirstName)
+	tools.Logger.Info(fmt.Sprintf("Sending email verification for user ID: %d \n First Name: %s", user.ID, user.FirstName.String))
 
 	return nil
 }

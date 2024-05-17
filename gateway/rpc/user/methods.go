@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/muazwzxv/go-backend-masterclass/modules/users"
 	"github.com/muazwzxv/go-backend-masterclass/pb"
 	"github.com/muazwzxv/go-backend-masterclass/pkg/hash"
@@ -33,8 +35,13 @@ func (s *UserService) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		UserID: user.ID,
 	}
 
-  // TODO: worker and insert user should be in one transaction
-	err = s.rpcServer.TaskDistributor.SendVerifyEmail(ctx, payload)
+	// TODO: worker and insert user should be in one transaction
+	opts := []asynq.Option{
+		asynq.MaxRetry(10),
+		asynq.ProcessIn(10 * time.Second),
+		asynq.Queue("critical"),
+	}
+	err = s.rpcServer.TaskDistributor.SendVerifyEmail(ctx, payload, opts...)
 	if err != nil {
 		s.rpcServer.Log.Infof("[worker] - failed to send verification email: %w", err)
 		return nil, status.Errorf(codes.Internal, "internal server")

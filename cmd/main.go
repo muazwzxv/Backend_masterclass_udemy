@@ -49,12 +49,11 @@ func main() {
 	}
 	store := db.NewStore(database)
 
-	// connect to redis
+	// connect to redis and setup worker
 	redisOpt := asynq.RedisClientOpt{
 		Addr:     cfg.RedisAddress,
 		Password: cfg.RedisPassword,
 	}
-
 	taskDist := worker.NewRedisTaskDistributor(redisOpt)
 
 	// setup logger
