@@ -3,6 +3,7 @@ services:
     container_name: postgres-backend-masterclass
     image: postgres
     environment:
+      POSTGRES_DB: go_masterclass
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
       PGDATA: /data/postgres
